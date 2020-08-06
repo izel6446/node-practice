@@ -22,37 +22,54 @@
   })
 
   class ColorUtil {
+    color_array = [];
+    constructor(){
+      for(let i=0;i<data.length;i++){
+        const r = Math.floor(Math.random() * 255);
+        const g = Math.floor(Math.random() * 255);
+        const b = Math.floor(Math.random() * 255);
+        this.color_array.push(`rgba(${r}, ${g}, ${b}, $OPACITY)`);
+      }
+    }
+
+    randomColorWithOpacity(opacity){
+      const rtn = this.color_array.map(x => x.replace("$OPACITY",opacity));
+      return rtn;
+    }
+
     static category10(opacity){
       return [
-        'rgba( 31, 119, 180, '+opacity+')',
-        'rgba(255, 127,  14, '+opacity+')',
-        'rgba( 44, 160,  44, '+opacity+')',
-        'rgba(214,  39,  40, '+opacity+')',
-        'rgba(148, 103, 219, '+opacity+')',
-        'rgba(140,  86,  75, '+opacity+')',
-        'rgba(227, 119, 194, '+opacity+')',
-        'rgba(127, 127, 127, '+opacity+')',
-        'rgba(188, 189,  34, '+opacity+')',
-        'rgba( 23, 190, 207, '+opacity+')'
+        `rgba( 31, 119, 180, ${opacity})`,
+        `rgba(255, 127,  14, ${opacity})`,
+        `rgba( 44, 160,  44, ${opacity})`,
+        `rgba(214,  39,  40, ${opacity})`,
+        `rgba(148, 103, 219, ${opacity})`,
+        `rgba(140,  86,  75, ${opacity})`,
+        `rgba(227, 119, 194, ${opacity})`,
+        `rgba(127, 127, 127, ${opacity})`,
+        `rgba(188, 189,  34, ${opacity})`,
+        `rgba( 23, 190, 207, ${opacity})`
       ]
     }
   
     static tableau10(opacity) {
       return [
-        'rgba( 78, 121, 167, '+opacity+')',
-        'rgba(242, 142,  44, '+opacity+')',
-        'rgba(225,  87,  89, '+opacity+')',
-        'rgba(118, 183, 178, '+opacity+')',
-        'rgba( 89, 161,  79, '+opacity+')',
-        'rgba(237, 201,  73, '+opacity+')',
-        'rgba(175, 122, 161, '+opacity+')',
-        'rgba(255, 157, 167, '+opacity+')',
-        'rgba(156, 101,  95, '+opacity+')',
-        'rgba(186, 176, 171, '+opacity+')'
+        `rgba( 78, 121, 167, ${opacity})`,
+        `rgba(242, 142,  44, ${opacity})`,
+        `rgba(225,  87,  89, ${opacity})`,
+        `rgba(118, 183, 178, ${opacity})`,
+        `rgba( 89, 161,  79, ${opacity})`,
+        `rgba(237, 201,  73, ${opacity})`,
+        `rgba(175, 122, 161, ${opacity})`,
+        `rgba(255, 157, 167, ${opacity})`,
+        `rgba(156, 101,  95, ${opacity})`,
+        `rgba(186, 176, 171, ${opacity})`
       ]
     }
   }
 
+  const color = new ColorUtil();
+  
   var myChart = new Chart(ctx, {
       type: option.type ,
       data: {
@@ -60,8 +77,8 @@
           datasets: [{
               label: 'Value',
               data: val,
-              backgroundColor: ColorUtil.category10(0.2),
-              borderColor: ColorUtil.category10(1),
+              backgroundColor: color.randomColorWithOpacity(0.3),
+              borderColor: color.randomColorWithOpacity(0.8),
               borderWidth: 1
           }]
       },

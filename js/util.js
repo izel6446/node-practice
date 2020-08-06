@@ -36,4 +36,19 @@ module.exports = class Util {
   static randomInt(min, max) { 
   return Math.floor(Math.random() * (max - min)) + min;
   }
+
+  /**
+  * 임의의 연령대 반환
+  */
+ static randomAge() { 
+  return this.randomItem(['0~9세','10대','20대','30대','40대','50대','60대','70대 이상'])
+  }
+
+  /**
+   * 임의의 IPv4 반환
+   */
+  static randomIpv4(){
+    return (Math.floor(Math.random() * 255) + 1)+"."+(Math.floor(Math.random() * 255))+"."+(Math.floor(Math.random() * 255))+"."+(Math.floor(Math.random() * 255));
+
+  }
 }
