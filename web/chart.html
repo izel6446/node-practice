@@ -1,0 +1,80 @@
+<!doctype html>
+<head>
+  <title>Chart</title>
+  <meta charset="UTF-8"/>
+  <script src="/script/chart.js/dist/Chart.bundle.min.js"></script>
+  <noscript>
+    현재 사용 중인 브라우저는 스크립트를 지원하지 않거나, 해당 기능이 활성화되어 있지 않습니다!
+  </noscript>
+</head>
+<body>
+<div style="width:1200px;height:900px">
+  <canvas id="myChart"></canvas>
+  <script>
+  var ctx = document.getElementById('myChart').getContext('2d');
+  const data = JSON.parse('<%-data%>');
+  const option = JSON.parse('<%-option%>');
+  const val = data.map(function(item){
+    return item.value;
+  })
+  const key = data.map(function(item){
+    return item._id;
+  })
+
+  class ColorUtil {
+    static category10(opacity){
+      return [
+        'rgba( 31, 119, 180, '+opacity+')',
+        'rgba(255, 127,  14, '+opacity+')',
+        'rgba( 44, 160,  44, '+opacity+')',
+        'rgba(214,  39,  40, '+opacity+')',
+        'rgba(148, 103, 219, '+opacity+')',
+        'rgba(140,  86,  75, '+opacity+')',
+        'rgba(227, 119, 194, '+opacity+')',
+        'rgba(127, 127, 127, '+opacity+')',
+        'rgba(188, 189,  34, '+opacity+')',
+        'rgba( 23, 190, 207, '+opacity+')'
+      ]
+    }
+  
+    static tableau10(opacity) {
+      return [
+        'rgba( 78, 121, 167, '+opacity+')',
+        'rgba(242, 142,  44, '+opacity+')',
+        'rgba(225,  87,  89, '+opacity+')',
+        'rgba(118, 183, 178, '+opacity+')',
+        'rgba( 89, 161,  79, '+opacity+')',
+        'rgba(237, 201,  73, '+opacity+')',
+        'rgba(175, 122, 161, '+opacity+')',
+        'rgba(255, 157, 167, '+opacity+')',
+        'rgba(156, 101,  95, '+opacity+')',
+        'rgba(186, 176, 171, '+opacity+')'
+      ]
+    }
+  }
+
+  var myChart = new Chart(ctx, {
+      type: option.type ,
+      data: {
+          labels: key,
+          datasets: [{
+              label: 'Value',
+              data: val,
+              backgroundColor: ColorUtil.category10(0.2),
+              borderColor: ColorUtil.category10(1),
+              borderWidth: 1
+          }]
+      },
+      options: {
+          scales: {
+              yAxes: [{
+                  ticks: {
+                      beginAtZero: true
+                  }
+              }]
+          }
+      }
+  });
+  </script>
+</div>
+</body>

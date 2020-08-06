@@ -1,0 +1,79 @@
+2020-08-04 01:43:58 | info | Web Application Initialized
+2020-08-04 01:44:37 | info | Connecting mongodb..
+2020-08-04 01:44:37 | info | Web Application Initialized
+2020-08-04 01:47:09 | info | Connecting mongodb..
+2020-08-04 01:47:09 | info | Web Application Initialized
+2020-08-04 01:47:48 | info | Connecting mongodb..
+2020-08-04 01:47:48 | info | Web Application Initialized
+2020-08-04 01:47:50 | error | failed to connect to server [localhost:27017] on first connect [Error: connect ECONNREFUSED 127.0.0.1:27017
+    at TCPConnectWrap.afterConnect [as oncomplete] (net.js:1141:16)
+    at TCPConnectWrap.callbackTrampoline (internal/async_hooks.js:120:14) {
+  name: 'MongoNetworkError'
+}]
+2020-08-04 01:49:10 | info | Connecting mongodb..
+2020-08-04 01:49:10 | info | Web Application Initialized
+2020-08-04 01:49:12 | error | failed to connect to server [localhost:27017] on first connect [Error: connect ECONNREFUSED 127.0.0.1:27017
+    at TCPConnectWrap.afterConnect [as oncomplete] (net.js:1141:16)
+    at TCPConnectWrap.callbackTrampoline (internal/async_hooks.js:120:14) {
+  name: 'MongoNetworkError'
+}]
+2020-08-04 01:49:24 | info | Connecting mongodb..
+2020-08-04 01:49:24 | info | Web Application Initialized
+2020-08-04 01:49:26 | error | failed to connect to server [localhost:27017] on first connect [Error: connect ECONNREFUSED 127.0.0.1:27017
+    at TCPConnectWrap.afterConnect [as oncomplete] (net.js:1141:16)
+    at TCPConnectWrap.callbackTrampoline (internal/async_hooks.js:120:14) {
+  name: 'MongoNetworkError'
+}]
+2020-08-04 01:49:46 | info | Connecting mongodb..
+2020-08-04 01:49:46 | info | Web Application Initialized
+2020-08-04 01:49:48 | error | failed to connect to server [localhost:27017] on first connect [Error: connect ECONNREFUSED 127.0.0.1:27017
+    at TCPConnectWrap.afterConnect [as oncomplete] (net.js:1141:16)
+    at TCPConnectWrap.callbackTrampoline (internal/async_hooks.js:120:14) {
+  name: 'MongoNetworkError'
+}]
+2020-08-04 01:51:01 | info | Connecting mongodb..
+2020-08-04 01:51:01 | info | Web Application Initialized
+2020-08-04 01:51:03 | error | failed to connect to server [localhost:27017] on first connect [Error: connect ECONNREFUSED 127.0.0.1:27017
+    at TCPConnectWrap.afterConnect [as oncomplete] (net.js:1141:16)
+    at TCPConnectWrap.callbackTrampoline (internal/async_hooks.js:120:14) {
+  name: 'MongoNetworkError'
+}]
+2020-08-04 01:56:45 | info | Connecting mongodb..
+2020-08-04 01:56:45 | info | Web Application Initialized
+2020-08-04 01:56:47 | error | failed to connect to server [localhost:27017] on first connect [Error: connect ECONNREFUSED 127.0.0.1:27017
+    at TCPConnectWrap.afterConnect [as oncomplete] (net.js:1141:16)
+    at TCPConnectWrap.callbackTrampoline (internal/async_hooks.js:120:14) {
+  name: 'MongoNetworkError'
+}]
+2020-08-04 01:58:46 | info | Starting Web Application
+2020-08-04 01:58:46 | info | Connecting mongodb..
+2020-08-04 01:58:46 | info | Web Application Initialized
+2020-08-04 01:58:49 | error | failed to connect to server [localhost:27017] on first connect [Error: connect ECONNREFUSED 127.0.0.1:27017
+    at TCPConnectWrap.afterConnect [as oncomplete] (net.js:1141:16)
+    at TCPConnectWrap.callbackTrampoline (internal/async_hooks.js:120:14) {
+  name: 'MongoNetworkError'
+}]
+2020-08-04 01:59:20 | info | Starting Web Application
+2020-08-04 01:59:20 | info | Connecting mongodb..
+2020-08-04 01:59:20 | info | Web Application Initialized
+2020-08-04 01:59:22 | error | failed to connect to server [localhost:27017] on first connect [Error: connect ECONNREFUSED 127.0.0.1:27017
+    at TCPConnectWrap.afterConnect [as oncomplete] (net.js:1141:16)
+    at TCPConnectWrap.callbackTrampoline (internal/async_hooks.js:120:14) {
+  name: 'MongoNetworkError'
+}]
+2020-08-04 02:00:09 | info | Starting Web Application
+2020-08-04 02:00:09 | info | Connecting mongodb..
+2020-08-04 02:00:09 | info | Web Application Initialized
+2020-08-04 02:00:11 | error | failed to connect to server [localhost:27017] on first connect [Error: connect ECONNREFUSED 127.0.0.1:27017
+    at TCPConnectWrap.afterConnect [as oncomplete] (net.js:1141:16)
+    at TCPConnectWrap.callbackTrampoline (internal/async_hooks.js:120:14) {
+  name: 'MongoNetworkError'
+}]
+2020-08-04 02:05:23 | info | Starting Web Application
+2020-08-04 02:05:23 | info | Connecting mongodb..
+2020-08-04 02:05:23 | info | Web Application Initialized
+2020-08-04 02:05:25 | error | failed to connect to server [localhost:27017] on first connect [Error: connect ECONNREFUSED 127.0.0.1:27017
+    at TCPConnectWrap.afterConnect [as oncomplete] (net.js:1141:16)
+    at TCPConnectWrap.callbackTrampoline (internal/async_hooks.js:120:14) {
+  name: 'MongoNetworkError'
+}]
