@@ -4,13 +4,8 @@ const User = require('../model/user');
 const Access = require('../model/access');
 const Util = require('../js/util')
 const logger = require('../config/winston');
-
-router.use(function log(req, res, next){
-  const query = JSON.stringify(req.query);
-  const params = JSON.stringify(req.params);
-  logger.info(`Dummy | Q=${query}, P=${params}`);
-  next();
-});
+const geoip = require('geoip-country');
+const moment = require('../config/moment')
 
 /**
  * Generate user
@@ -24,15 +19,35 @@ router.get('/user', function(req, res){
   
   user.save(function(err){
        if(err){ 
-           console.error(err);
-           res.json({result: 1});
+           logger.error(err);
+           res.json({result: -1});
            return;
        }
 
-       res.json({result: 0, data:user});
+       res.json({result: 1, data:user});
 
    });
 })
+
+/**
+* View user by userid
+*/
+router.get('/user/find/:id', function(req, res){
+     const id = req.params.id;
+     User.find({userid:id})
+          .then(user => {
+               res.status(200).json({
+               result: 1,
+               data: user
+               })
+          })
+          .catch(err => {
+            res.status(500).json({
+              result: -1,
+              message: err
+            });
+          });
+   })
 
 /**
 * View all user list
@@ -41,13 +56,13 @@ router.get('/user/list', function(req, res){
   User.find()
        .then(user => {
             res.status(200).json({
-            result: 0,
+            result: user.length,
             data: user
             })
        })
        .catch(err => {
          res.status(500).json({
-           result: 1,
+           result: -1,
            message: err
          });
        });
@@ -57,16 +72,32 @@ router.get('/user/list', function(req, res){
 * View all access list
 */
 router.get('/access/list', function(req, res){
-  Access.find().populate('user')
+  // timestamp
+  // start default 1 month ago
+  const start = typeof req.query.start === "undefined" ? moment().subtract(1, 'M') : moment(req.query.start);
+  // end default now
+  const end = typeof req.query.end === "undefined" ? moment() : moment(req.query.end);
+
+  Access.find(
+          {
+               $and:[
+                    {
+                    'timestamp':{$gte: start.toDate()}
+                    }, {
+                    'timestamp':{$lt: end.toDate()}
+                    }
+               ]
+          }
+     ).populate('user')
        .then(access => {
             res.status(200).json({
-            result: 0,
+            result: access.length,
             data: access
             })
        })
        .catch(err => {
          res.status(500).json({
-            result: 1,
+            result: -1,
            message: err
          });
        });
@@ -103,8 +134,8 @@ router.get('/access', function(req, res){
        
             stat.save(function(err){
                  if(err){
-                     console.error(err);
-                     res.json({result: 0});
+                     logger.error(err);
+                     res.json({result: -1});
                      return;
                  }
                  res.json({result: 1, data:stat});

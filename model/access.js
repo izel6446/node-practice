@@ -3,7 +3,7 @@ const { ObjectId } = require('mongoose');
 const Schema = mongoose.Schema;
 
 const accessSchema = new Schema({
-  timestamp: { type: Date, default: Date.now },
+  timestamp: { type: Date, default: Date.now() },
   user: {type:ObjectId, ref: 'user'},
   board: String,
   client: new Schema({
@@ -17,5 +17,7 @@ const accessSchema = new Schema({
     version:  String
   })
 });
+
+accessSchema.index({timestamp:-1});
 
 module.exports = mongoose.model('access', accessSchema);

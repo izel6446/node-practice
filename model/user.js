@@ -6,6 +6,9 @@ const userSchema = new Schema({
   age: String,
   sex: String,
   region: String
+},{
+  // Auto gen 'createAt' and 'updateAt'
+  timestamps:true
 });
 
 userSchema.index({userid:1});

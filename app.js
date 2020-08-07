@@ -14,6 +14,7 @@ const db = mongoose.connection;
 const logger = require('./config/winston');
 const dummy = require('./js/dummy');
 const chart = require('./js/chart');
+const scheduler = require('./js/scheduler');
 
 mongoose.set('debug', function (collectionName, method, query, doc) {
      logger.debug(JSON.stringify(query));
@@ -46,7 +47,7 @@ app.use('/chart', chart);
 app.get('/', function(req, res){
      const addr = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
      const geo = geoip.lookup(addr);
-     const geo_name = geo==null?'PRIV':geo.country;
+     const geo_name = geo==null?'KR':geo.country;
      logger.info(addr + " (" + geo_name + ")");
      res.render('index.html');
 })
