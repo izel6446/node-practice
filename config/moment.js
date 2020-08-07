@@ -1,5 +1,5 @@
 const moment = require('moment');
 require('moment-timezone'); 
-moment.tz.setDefault("UTC"); 
+moment.tz.setDefault("Asia/Seoul"); 
 
 module.exports = moment;
