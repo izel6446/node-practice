@@ -1,12 +1,16 @@
 
 ### 사용자 생성
 GET http://localhost/dummy/user
+
 ### 사용자 전체 조회
 GET http://localhost/dummy/user/list
+
 ### 사용자 아이디로 조회
 GET http://localhost/dummy/user/find/adfbbc100
+
 ### Access 로그 생성
 GET http://localhost/dummy/access
+
 ### Access 로그 조회
 GET http://localhost/dummy/access/list?start=2020-08-07 14:45&end=2020-08-07 14:46
 

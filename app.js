@@ -14,7 +14,7 @@ const db = mongoose.connection;
 const logger = require('./config/winston');
 const dummy = require('./js/dummy');
 const chart = require('./js/chart');
-const scheduler = require('./js/scheduler');
+// const scheduler = require('./js/scheduler')
 
 mongoose.set('debug', function (collectionName, method, query, doc) {
      logger.debug(JSON.stringify(query));
@@ -51,8 +51,8 @@ app.get('/', function(req, res){
      logger.info(addr + " (" + geo_name + ")");
      res.render('index.html');
 })
-
- //---------------------------------------------//
+ 
+//---------------------------------------------//
  logger.info("Starting Web Application")
  app.listen(80, '0.0.0.0', function(){
      logger.info("Web Application Initialized");
