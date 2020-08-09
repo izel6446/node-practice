@@ -7,29 +7,13 @@ const express = require('express');
 const geoip = require('geoip-country');
 const app = express();
 const bodyParser  = require('body-parser');
-const mongoose    = require('mongoose');
 const useragent = require('express-useragent');
 const helmet = require("helmet");
-const db = mongoose.connection;
 const logger = require('./config/winston');
 const dummy = require('./js/dummy');
 const chart = require('./js/chart');
+const db = require('./config/mongo');
 // const scheduler = require('./js/scheduler')
-
-mongoose.set('debug', function (collectionName, method, query, doc) {
-     logger.debug(JSON.stringify(query));
-});
-db.on('error', function(err){
-     logger.error(err);
-     logger.error("Shutting Down Application...");
-     process.exit(1);
-});
-db.once('open', function(){
-     logger.info("Connected to mongod server");
-});
-
-logger.info("Connecting mongodb..")
-mongoose.connect('mongodb://localhost/stat', { useNewUrlParser: true });
 
 app.use(useragent.express())
 app.use(helmet());

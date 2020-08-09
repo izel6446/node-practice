@@ -8,6 +8,7 @@ const moment = require('../config/moment')
  * View stat graph
  */
 router.get('/stat/:field', function(req, res){
+  const isDataOnly = req.query.dataonly != null;
   const field = req.params.field;
   const type = req.query.type || 'bar';
   // sort key [value or _id]
@@ -57,7 +58,12 @@ router.get('/stat/:field', function(req, res){
        logger.debug(JSON.stringify(result))
        if (result.length !== 0 && result[0]._id != null && typeof result[0]._id[0] !== "undefined"){
             data = result;
-       } res.render('chart.html', {data:JSON.stringify(data), option:JSON.stringify({type:type})});
+       }
+       if(isDataOnly) {
+            res.send(data);
+       } else {
+       res.render('chart.html', {data:JSON.stringify(data), option:JSON.stringify({type:type})});
+       }
   });
 })
 

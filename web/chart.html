@@ -6,24 +6,38 @@
   <noscript>
     현재 사용 중인 브라우저는 스크립트를 지원하지 않거나, 해당 기능이 활성화되어 있지 않습니다!
   </noscript>
-</head>
-<body>
-<div style="width:1200px;height:900px">
-  <canvas id="myChart"></canvas>
   <script>
-  var ctx = document.getElementById('myChart').getContext('2d');
-  const data = JSON.parse('<%-data%>');
-  const option = JSON.parse('<%-option%>');
-  const val = data.map(function(item){
-    return item.value;
-  })
-  const key = data.map(function(item){
-    return item._id;
-  })
 
-  class ColorUtil {
+    function changeDataSelect(){
+      var langSelect = document.getElementById("data");
+      var selectValue = langSelect.options[langSelect.selectedIndex].value;
+      var selectText = langSelect.options[langSelect.selectedIndex].text;
+
+      var url = `/chart/stat/${selectValue}`;
+
+      callAjax("GET", `${url}?dataonly`, function(data){
+        drawGraph('myChart', JSON.parse(data), {});
+        history.pushState(null, null, url);
+      })
+
+    }
+    function callAjax(method, url, callback){
+        var xmlhttp;
+        // compatible with IE7+, Firefox, Chrome, Opera, Safari
+        xmlhttp = new XMLHttpRequest();
+        xmlhttp.onreadystatechange = function(){
+            if (xmlhttp.readyState == 4 && xmlhttp.status == 200){
+                callback(xmlhttp.responseText);
+            }
+        }
+        xmlhttp.open(method, url, true);
+        xmlhttp.send();
+    }
+    </script>
+    <script>
+      class ColorUtil {
     color_array = [];
-    constructor(){
+    constructor(data){
       for(let i=0;i<data.length;i++){
         const r = Math.floor(Math.random() * 255);
         const g = Math.floor(Math.random() * 255);
@@ -68,30 +82,85 @@
     }
   }
 
-  const color = new ColorUtil();
+  let currentChart = null;
+
+  function drawGraph(id, data){
+    if(currentChart != null){
+      currentChart.destroy();
+    }
+    const val = data.map(function(item){
+    return item.value;
+    })
+    const key = data.map(function(item){
+      return item._id;
+    })
+    const color = new ColorUtil(data);
+    const element = document.getElementById(id);
+    var ctx = element.getContext('2d');
+    ctx.clearRect(0, 0, element.width, element.height);
+    ctx.beginPath();
+
+    currentChart = new Chart(ctx, {
+        type: option.type || 'bar' ,
+        data: {
+            labels: key,
+            datasets: [{
+                label: 'Value',
+                data: val,
+                backgroundColor: color.randomColorWithOpacity(0.3),
+                borderColor: color.randomColorWithOpacity(0.8),
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }]
+            }
+        }
+    });
+  }
+
+    </script>
+</head>
+<body>
+  <div>
+    <select id="data" title="data" onchange="changeDataSelect()">
+      <optgroup value="클라이언트">
+        <option value="client.geo">지역 코드</option>
+        <option value="client.ip">IP</option>
+      </optgroup>
+      <optgroup title="에이전트">
+        <option value="agent.os">OS</option>
+        <option value="agent.platform">플랫폼</option>
+        <option value="agent.browser">브라우저</option>
+        <option value="agent.version">버전</option>
+      </optgroup>
+      <optgroup title="게시판">
+        <option value="board">게시판</option>
+      </optgroup>
+      <optgroup title="사용자">
+        <option value="user.userid">사용자 ID</option>
+        <option value="user.age">연령</option>
+        <option value="user.sex">성별</option>
+        <option value="user.region">지역</option>
+      </optgroup>
+    </select>
+  </div>
+<div style="width:1200px;height:900px">
+  <canvas id="myChart"></canvas>
+  <script>
   
-  var myChart = new Chart(ctx, {
-      type: option.type ,
-      data: {
-          labels: key,
-          datasets: [{
-              label: 'Value',
-              data: val,
-              backgroundColor: color.randomColorWithOpacity(0.3),
-              borderColor: color.randomColorWithOpacity(0.8),
-              borderWidth: 1
-          }]
-      },
-      options: {
-          scales: {
-              yAxes: [{
-                  ticks: {
-                      beginAtZero: true
-                  }
-              }]
-          }
-      }
-  });
+  const data = JSON.parse('<%-data%>');
+  const option = JSON.parse('<%-option%>');
+  
+
+  drawGraph('myChart', data, option);
+
+  
   </script>
 </div>
 </body>
