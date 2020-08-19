@@ -17,3 +17,6 @@ GET http://localhost/dummy/access/list?start=2020-08-07 14:45&end=2020-08-07 14:
 
 ### Chart
 GET http://localhost/chart/stat/client.geo?sort_key=_id&sort_value=1&limit=30&start=2020-08-07&end=2020-08-07T06
+
+###
+POST http://localhost/chart/stat/list

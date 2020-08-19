@@ -3,24 +3,73 @@
   <title>Chart</title>
   <meta charset="UTF-8"/>
   <script src="/script/chart.js/dist/Chart.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue"></script>
   <noscript>
     현재 사용 중인 브라우저는 스크립트를 지원하지 않거나, 해당 기능이 활성화되어 있지 않습니다!
   </noscript>
+  <style>
+    optgroup {
+      background-color: black;
+      color:white;
+    }
+    #statList, #searchOptions {
+      display:inline-flex;
+    }
+
+    #searchOptions > span {
+      margin-right: 25px;
+      padding: 5px;
+    }
+  </style>
   <script>
 
-    function changeDataSelect(){
-      var langSelect = document.getElementById("data");
-      var selectValue = langSelect.options[langSelect.selectedIndex].value;
-      var selectText = langSelect.options[langSelect.selectedIndex].text;
+    let searchOptions;
+    let statList;
+    const url = window.location.pathname
+    const filename = url.substring(url.lastIndexOf('/')+1);
+    let query;
+    function getUrlParams() {
+        var params = {};
+        window.location.search.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(str, key, value) { params[key] = value; });
+        return params;
+      }
 
-      var url = `/chart/stat/${selectValue}`;
+    window.onload = function(){
+      query = getUrlParams()
 
-      callAjax("GET", `${url}?dataonly`, function(data){
-        drawGraph('myChart', JSON.parse(data), {});
-        history.pushState(null, null, url);
+      callAjax('POST', '/chart/stat/list', function(data){
+        statList = new Vue({
+          el: '#statList',
+          data: {
+            items:JSON.parse(data)
+          }
+        })
       })
 
+      const today = new Date();
+      const monthago = new Date();
+      monthago.setMonth(today.getMonth()-1);
+
+      sdate = query.start || monthago.toISOString();
+      stime = query.start || monthago.toISOString();
+      edate = query.end || today.toISOString();
+      etime = query.end || today.toISOString();
+
+      searchOptions = new Vue({
+        el: '#searchOptions',
+        data: {
+          sort: '_id',
+          order: '-1',
+          limit: 10,
+          type: 'bar',
+          sdate: sdate.substring(0,10),
+          stime: stime.substring(11,16),
+          edate: edate.substring(0,10),
+          etime: etime.substring(11,16),
+        }
+      })
     }
+
     function callAjax(method, url, callback){
         var xmlhttp;
         // compatible with IE7+, Firefox, Chrome, Opera, Safari
@@ -33,6 +82,22 @@
         xmlhttp.open(method, url, true);
         xmlhttp.send();
     }
+
+    function search(){
+      var s = document.getElementById("data");
+      var selectValue = s.options[s.selectedIndex].value;
+
+      const stime = `${searchOptions.sdate}T${searchOptions.stime}`
+      const etime = `${searchOptions.edate}T${searchOptions.etime}`
+      const url = `/chart/stat/${selectValue}?type=${searchOptions.type}&sort_key=${searchOptions.sort}&sort_value=${searchOptions.order}&limit=${searchOptions.limit}&start=${stime}&end=${etime}`
+      const req_url = `${url}&dataonly`
+     
+      callAjax('GET', req_url, function(data){
+        drawGraph('myChart', JSON.parse(data), {type:searchOptions.type});
+        history.pushState(null, null, url);
+      })
+    }
+
     </script>
     <script>
       class ColorUtil {
@@ -50,47 +115,46 @@
       const rtn = this.color_array.map(x => x.replace("$OPACITY",opacity));
       return rtn;
     }
-
-    static category10(opacity){
-      return [
-        `rgba( 31, 119, 180, ${opacity})`,
-        `rgba(255, 127,  14, ${opacity})`,
-        `rgba( 44, 160,  44, ${opacity})`,
-        `rgba(214,  39,  40, ${opacity})`,
-        `rgba(148, 103, 219, ${opacity})`,
-        `rgba(140,  86,  75, ${opacity})`,
-        `rgba(227, 119, 194, ${opacity})`,
-        `rgba(127, 127, 127, ${opacity})`,
-        `rgba(188, 189,  34, ${opacity})`,
-        `rgba( 23, 190, 207, ${opacity})`
-      ]
-    }
-  
-    static tableau10(opacity) {
-      return [
-        `rgba( 78, 121, 167, ${opacity})`,
-        `rgba(242, 142,  44, ${opacity})`,
-        `rgba(225,  87,  89, ${opacity})`,
-        `rgba(118, 183, 178, ${opacity})`,
-        `rgba( 89, 161,  79, ${opacity})`,
-        `rgba(237, 201,  73, ${opacity})`,
-        `rgba(175, 122, 161, ${opacity})`,
-        `rgba(255, 157, 167, ${opacity})`,
-        `rgba(156, 101,  95, ${opacity})`,
-        `rgba(186, 176, 171, ${opacity})`
-      ]
-    }
   }
 
   let currentChart = null;
 
-  function drawGraph(id, data){
+  function drawGraph(id, data, option){
     if(currentChart != null){
       currentChart.destroy();
     }
-    const val = data.map(function(item){
-    return item.value;
-    })
+    if(typeof data.length === "undefined"){
+      return;
+    }
+
+    const graph_options = {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }]
+            }
+        };
+
+    let val;
+    if(!option.isTimegraph){
+      val = data.map(function(item){
+      return item.value;
+      });
+    }
+    else {
+      graph_options.scales.xAxes = [{
+                type: 'time',
+                distribution: 'series',
+                time:{unit:'year'}
+            }]
+
+      val = data.map(function(item){
+      return {x:item._id.date, y:item.value};
+      });
+    }
+
     const key = data.map(function(item){
       return item._id;
     })
@@ -99,7 +163,7 @@
     var ctx = element.getContext('2d');
     ctx.clearRect(0, 0, element.width, element.height);
     ctx.beginPath();
-
+  
     currentChart = new Chart(ctx, {
         type: option.type || 'bar' ,
         data: {
@@ -109,58 +173,64 @@
                 data: val,
                 backgroundColor: color.randomColorWithOpacity(0.3),
                 borderColor: color.randomColorWithOpacity(0.8),
-                borderWidth: 1
+                borderWidth: 2,
+                fill:false
             }]
         },
-        options: {
-            scales: {
-                yAxes: [{
-                    ticks: {
-                        beginAtZero: true
-                    }
-                }]
-            }
-        }
+        options: graph_options
     });
   }
-
     </script>
 </head>
 <body>
-  <div>
-    <select id="data" title="data" onchange="changeDataSelect()">
-      <optgroup value="클라이언트">
-        <option value="client.geo">지역 코드</option>
-        <option value="client.ip">IP</option>
-      </optgroup>
-      <optgroup title="에이전트">
-        <option value="agent.os">OS</option>
-        <option value="agent.platform">플랫폼</option>
-        <option value="agent.browser">브라우저</option>
-        <option value="agent.version">버전</option>
-      </optgroup>
-      <optgroup title="게시판">
-        <option value="board">게시판</option>
-      </optgroup>
-      <optgroup title="사용자">
-        <option value="user.userid">사용자 ID</option>
-        <option value="user.age">연령</option>
-        <option value="user.sex">성별</option>
-        <option value="user.region">지역</option>
+  <div id="statList" v-if="filename !== 'time'">
+    <select id="data" title="data">
+      <optgroup v-for="item in items" :label="item.key">
+        <option v-for="i in item.data" :value="i.key">{{ i.value }}</option>
       </optgroup>
     </select>
   </div>
-<div style="width:1200px;height:900px">
-  <canvas id="myChart"></canvas>
-  <script>
-  
-  const data = JSON.parse('<%-data%>');
-  const option = JSON.parse('<%-option%>');
-  
+  <div id="searchOptions" v-if="filename !== 'time'">
+    <span>Sort : 
+      <input type="radio" id="sort-id" name="id" value="_id" v-model="sort"/>
+      <label for="sort-id">ID</label>
+      <input type="radio" id="sort-value" name="value" value="value" v-model="sort"/>
+      <label for="sort-value">값</label>
+    </span>
+    <span>Order : 
+      <input type="radio" id="order-asc" name="asc" value="1" v-model="order"/>
+      <label for="order-asc">▲</label>
+      <input type="radio" id="order-desc" name="desc" value="-1" v-model="order"/>
+      <label for="order-desc">▼</label>
+    </span>
+    <span>Limit : 
+      <input type="text" name="limit" v-model.number="limit" type="number"/>
+    </span>
+    <span>Time : 
+      <input type="date" v-model="sdate"/>
+      <input type="time" v-model="stime"/>-
+      <input type="date" v-model="edate"/>
+      <input type="time" v-model="etime"/>
+    </span>
+    <span>Chart Type : 
+      <input type="radio" id="type-bar" name="bar" value="bar" v-model="type"/>
+      <label for="type-bar">Bar</label>
+      <input type="radio" id="type-doughnut" name="doughnut" value="doughnut" v-model="type"/>
+      <label for="type-doughnut">Doughnut</label>
+      <input type="radio" id="type-line" name="line" value="line" v-model="type"/>
+      <label for="type-line">Line</label>
+    </span>
+    <button @click="search()">검색</button>
+  </div>
 
-  drawGraph('myChart', data, option);
-
-  
-  </script>
-</div>
+  <div style="width:50vw;height:30vh">
+    <canvas id="myChart"></canvas>
+    <script>
+    
+    const data = JSON.parse('<%-data%>');
+    const option = JSON.parse('<%-option%>');
+    
+    drawGraph('myChart', data, option);
+    </script>
+  </div>
 </body>

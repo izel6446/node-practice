@@ -13,6 +13,9 @@ const logger = require('./config/winston');
 const dummy = require('./js/dummy');
 const chart = require('./js/chart');
 const db = require('./config/mongo');
+const Vue = require('vue');
+const Datetime = require('vue-datetime');
+Vue.component('datetime', Datetime);
 // const scheduler = require('./js/scheduler')
 
 app.use(useragent.express())

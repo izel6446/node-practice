@@ -4,8 +4,60 @@ const Access = require('../model/access');
 const logger = require('../config/winston');
 const moment = require('../config/moment')
 
+router.post('/stat/list', function(req, res){
+  const client = {key:'클라이언트', data:[{key:"client.geo", value:"지역 코드"}, {key:"client.ip", value:"IP"}]}
+  const agent = {key:'에이전트', data:[{key:"agent.os", value:"OS"}, {key:"agent.platform", value:"플랫폼"}, {key:"agent.browser", value:"브라우저"}, {key:"agent.version", value:"버전"}]}
+  const board = {key:'게시판', data:[{key:"board", value:"게시판"}]}
+  const user = {key:'사용자', data:[{key:"user.userid", value:"사용자 ID"}, {key:"user.age", value:"연령"}, {key:"user.sex", value:"성별"}, {key:"user.region", value:"지역"}]}
+  
+  const data = [client, agent, board, user]
+  res.send(data);
+})
+
 /**
- * View stat graph
+ * View stat time graph
+ */
+router.get('/stat/time', function(req, res){
+     const isDataOnly = req.query.dataonly != null;
+     // timestamp
+     // start default 1 month ago
+     const start = typeof req.query.start === "undefined" ? moment().subtract(1, 'M') : moment(req.query.start);
+     // end default now
+     const end = typeof req.query.end === "undefined" ? moment() : moment(req.query.end);
+      
+     Access.aggregate([
+          {
+             $match:{ 
+                  $and:[
+                       {'timestamp':{$gte: start.toDate()}}, {'timestamp':{$lt: end.toDate()}}
+                  ]
+               }
+          }, {
+               $group:{
+               _id:{"date":{$dateToString:
+                    {format:"%Y-%m-%d %H", date:"$timestamp", timezone:"+09"}
+                           }
+               }, value:{$sum:1}
+          }
+          }, {
+               $sort:{"_id.date":1}
+          }
+     ]).then(function(result){
+          let data = {};
+          logger.debug(JSON.stringify(result))
+          if (result.length !== 0 && result[0]._id != null && typeof result[0]._id !== "undefined"){
+               data = result;
+          }
+          if(isDataOnly) {
+               res.send(data);
+          } else {
+          res.render('chart.html', {data:JSON.stringify(data), option:JSON.stringify({type:'line', isTimegraph:true})});
+          }
+     });
+   })
+
+/**
+ * View stat field graph
  */
 router.get('/stat/:field', function(req, res){
   const isDataOnly = req.query.dataonly != null;
