@@ -2,8 +2,10 @@
 <head>
   <title>Chart</title>
   <meta charset="UTF-8"/>
-  <script src="/script/chart.js/dist/Chart.bundle.min.js"></script>
+  <script src="/nm/chart.js/dist/Chart.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+  <script src="/js/js-util.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
   <noscript>
     현재 사용 중인 브라우저는 스크립트를 지원하지 않거나, 해당 기능이 활성화되어 있지 않습니다!
   </noscript>
@@ -28,16 +30,11 @@
     const url = window.location.pathname
     const filename = url.substring(url.lastIndexOf('/')+1);
     let query;
-    function getUrlParams() {
-        var params = {};
-        window.location.search.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(str, key, value) { params[key] = value; });
-        return params;
-      }
-
+    
     window.onload = function(){
-      query = getUrlParams()
-
-      callAjax('POST', '/chart/stat/list', function(data){
+      query = JsUtil.getUrlParams();
+    
+      JsUtil.callAjax('POST', '/chart/stat/list', function(data){
         statList = new Vue({
           el: '#statList',
           data: {
@@ -68,55 +65,31 @@
           etime: etime.substring(11,16),
         }
       })
-    }
 
-    function callAjax(method, url, callback){
-        var xmlhttp;
-        // compatible with IE7+, Firefox, Chrome, Opera, Safari
-        xmlhttp = new XMLHttpRequest();
-        xmlhttp.onreadystatechange = function(){
-            if (xmlhttp.readyState == 4 && xmlhttp.status == 200){
-                callback(xmlhttp.responseText);
-            }
-        }
-        xmlhttp.open(method, url, true);
-        xmlhttp.send();
+      const data = JSON.parse('<%-data%>');
+      const option = JSON.parse('<%-option%>');
+        
+      drawGraph('myChart', data, option);
     }
 
     function search(){
-      var s = document.getElementById("data");
-      var selectValue = s.options[s.selectedIndex].value;
+      var selectStatList = document.getElementById("selectStatList");
+      var selectValue = selectStatList.options[selectStatList.selectedIndex].value;
+      var selectText = selectStatList.options[selectStatList.selectedIndex].text;
 
       const stime = `${searchOptions.sdate}T${searchOptions.stime}`
       const etime = `${searchOptions.edate}T${searchOptions.etime}`
       const url = `/chart/stat/${selectValue}?type=${searchOptions.type}&sort_key=${searchOptions.sort}&sort_value=${searchOptions.order}&limit=${searchOptions.limit}&start=${stime}&end=${etime}`
       const req_url = `${url}&dataonly`
      
-      callAjax('GET', req_url, function(data){
-        drawGraph('myChart', JSON.parse(data), {type:searchOptions.type});
+      JsUtil.callAjax('GET', req_url, function(data){
+        drawGraph('myChart', JSON.parse(data), {type:searchOptions.type, title:selectText});
         history.pushState(null, null, url);
       })
     }
-
     </script>
     <script>
-      class ColorUtil {
-    color_array = [];
-    constructor(data){
-      for(let i=0;i<data.length;i++){
-        const r = Math.floor(Math.random() * 255);
-        const g = Math.floor(Math.random() * 255);
-        const b = Math.floor(Math.random() * 255);
-        this.color_array.push(`rgba(${r}, ${g}, ${b}, $OPACITY)`);
-      }
-    }
-
-    randomColorWithOpacity(opacity){
-      const rtn = this.color_array.map(x => x.replace("$OPACITY",opacity));
-      return rtn;
-    }
-  }
-
+    
   let currentChart = null;
 
   function drawGraph(id, data, option){
@@ -134,6 +107,12 @@
                         beginAtZero: true
                     }
                 }]
+            },
+            title:{
+              display: true,
+              text: option.title,
+              fontSize: 24,
+              fontColor: 'black'
             }
         };
 
@@ -144,10 +123,23 @@
       });
     }
     else {
+      const data_time = data.map(i => i._id.date);
+      const max_time = data_time[data_time.length-1];
+      const min_time = data_time[0];
+      graph_options.title.text = '총 사용자 접근 횟수'
       graph_options.scales.xAxes = [{
                 type: 'time',
-                distribution: 'series',
-                time:{unit:'year'}
+                isoWeekday: true,
+                time:{unit:'day',
+                      displayFormats: {
+                        'day': 'YYYY-MM-DD'
+                      }                      
+                    },
+                ticks:{
+                  min: moment(min_time).subtract(3, 'h'),
+                  max: moment(max_time).add(3, 'h'),
+                  source: 'auto'
+                }
             }]
 
       val = data.map(function(item){
@@ -158,7 +150,7 @@
     const key = data.map(function(item){
       return item._id;
     })
-    const color = new ColorUtil(data);
+    const color = new JsUtil.ColorUtil(data);
     const element = document.getElementById(id);
     var ctx = element.getContext('2d');
     ctx.clearRect(0, 0, element.width, element.height);
@@ -173,8 +165,12 @@
                 data: val,
                 backgroundColor: color.randomColorWithOpacity(0.3),
                 borderColor: color.randomColorWithOpacity(0.8),
-                borderWidth: 2,
-                fill:false
+                borderWidth: 3,
+                fill:false,
+                pointBorderWidth:3,
+                pointRadius:5,
+                pointBorderColor: 'rgba(225, 15, 15, 0.8)',
+                cubicInterpolationMode: 'monotone'
             }]
         },
         options: graph_options
@@ -184,7 +180,7 @@
 </head>
 <body>
   <div id="statList" v-if="filename !== 'time'">
-    <select id="data" title="data">
+    <select id="selectStatList" title="data">
       <optgroup v-for="item in items" :label="item.key">
         <option v-for="i in item.data" :value="i.key">{{ i.value }}</option>
       </optgroup>
@@ -223,14 +219,7 @@
     <button @click="search()">검색</button>
   </div>
 
-  <div style="width:50vw;height:30vh">
+  <div style="width:85vw;height:30vh">
     <canvas id="myChart"></canvas>
-    <script>
-    
-    const data = JSON.parse('<%-data%>');
-    const option = JSON.parse('<%-option%>');
-    
-    drawGraph('myChart', data, option);
-    </script>
   </div>
 </body>

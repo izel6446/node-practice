@@ -1,4 +1,4 @@
-module.exports = class Util {
+module.exports = class NodeUtil {
     /**
    * 아이디 생성 (소문자+숫자)
    *   ex) makeid(6,4)

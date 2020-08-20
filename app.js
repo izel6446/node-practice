@@ -13,14 +13,12 @@ const logger = require('./config/winston');
 const dummy = require('./js/dummy');
 const chart = require('./js/chart');
 const db = require('./config/mongo');
-const Vue = require('vue');
-const Datetime = require('vue-datetime');
-Vue.component('datetime', Datetime);
-// const scheduler = require('./js/scheduler')
+const scheduler = require('./js/scheduler')
 
 app.use(useragent.express())
 app.use(helmet());
-app.use('/script', express.static(__dirname+"/node_modules"));
+app.use('/nm', express.static(__dirname+"/node_modules"));
+app.use('/js', express.static(__dirname+"/js"));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 

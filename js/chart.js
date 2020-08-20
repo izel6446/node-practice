@@ -4,14 +4,19 @@ const Access = require('../model/access');
 const logger = require('../config/winston');
 const moment = require('../config/moment')
 
-router.post('/stat/list', function(req, res){
-  const client = {key:'클라이언트', data:[{key:"client.geo", value:"지역 코드"}, {key:"client.ip", value:"IP"}]}
-  const agent = {key:'에이전트', data:[{key:"agent.os", value:"OS"}, {key:"agent.platform", value:"플랫폼"}, {key:"agent.browser", value:"브라우저"}, {key:"agent.version", value:"버전"}]}
-  const board = {key:'게시판', data:[{key:"board", value:"게시판"}]}
-  const user = {key:'사용자', data:[{key:"user.userid", value:"사용자 ID"}, {key:"user.age", value:"연령"}, {key:"user.sex", value:"성별"}, {key:"user.region", value:"지역"}]}
+const client = {key:'클라이언트', data:[{key:"client.geo", value:"지역 코드"}, {key:"client.ip", value:"IP"}]}
+const agent = {key:'에이전트', data:[{key:"agent.os", value:"OS"}, {key:"agent.platform", value:"플랫폼"}, {key:"agent.browser", value:"브라우저"}, {key:"agent.version", value:"버전"}]}
+const board = {key:'게시판', data:[{key:"board", value:"게시판"}]}
+const user = {key:'사용자', data:[{key:"user.userid", value:"사용자 ID"}, {key:"user.age", value:"연령"}, {key:"user.sex", value:"성별"}, {key:"user.region", value:"지역"}]}
   
-  const data = [client, agent, board, user]
-  res.send(data);
+const statList = [client, agent, board, user]
+
+function getValue(key) {
+  return statList.flatMap(x=>x.data).find(y=>y.key===key).value;
+}
+
+router.post('/stat/list', function(req, res){
+  res.send(statList);
 })
 
 /**
@@ -19,6 +24,7 @@ router.post('/stat/list', function(req, res){
  */
 router.get('/stat/time', function(req, res){
      const isDataOnly = req.query.dataonly != null;
+     const type = req.query.type || 'bar';
      // timestamp
      // start default 1 month ago
      const start = typeof req.query.start === "undefined" ? moment().subtract(1, 'M') : moment(req.query.start);
@@ -51,7 +57,7 @@ router.get('/stat/time', function(req, res){
           if(isDataOnly) {
                res.send(data);
           } else {
-          res.render('chart.html', {data:JSON.stringify(data), option:JSON.stringify({type:'line', isTimegraph:true})});
+          res.render('chart.html', {data:JSON.stringify(data), option:JSON.stringify({type:type, isTimegraph:true})});
           }
      });
    })
@@ -114,7 +120,7 @@ router.get('/stat/:field', function(req, res){
        if(isDataOnly) {
             res.send(data);
        } else {
-       res.render('chart.html', {data:JSON.stringify(data), option:JSON.stringify({type:type})});
+       res.render('chart.html', {data:JSON.stringify(data), option:JSON.stringify({type:type, title:getValue(field)})});
        }
   });
 })

@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const User = require('../model/user');
 const Access = require('../model/access');
-const Util = require('../js/util')
+const Util = require('./node-util')
 const logger = require('../config/winston');
 const geoip = require('geoip-country');
 const moment = require('../config/moment')
@@ -114,6 +114,7 @@ router.get('/access', function(req, res){
             const addr = Util.randomIpv4();
             const geo = geoip.lookup(addr);
             const geo_code = geo==null?'KR':geo.country;
+            stat.timestamp = Date.now();
             stat.client = {
                  geo: geo_code,
                  ip: addr

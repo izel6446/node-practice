@@ -3,7 +3,7 @@ const { ObjectId } = require('mongoose');
 const Schema = mongoose.Schema;
 
 const accessSchema = new Schema({
-  timestamp: { type: Date, default: Date.now() },
+  timestamp: { type: Date },
   user: {type:ObjectId, ref: 'user'},
   board: String,
   client: new Schema({
